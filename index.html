@@ -9,7 +9,7 @@
   :root {
     --d:#C0392B; --i:#E67E22; --s:#27AE60; --c:#2980B9;
     --ink:#1a1a1a; --muted:#6b6b6b; --line:#e2e2e2; --bg:#faf9f6; --card:#fff;
-  }
+  }h
   *{box-sizing:border-box;margin:0;padding:0;}
   body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;}
   header{background:var(--ink);color:white;padding:2rem 2.5rem;display:flex;align-items:center;gap:1.5rem;}
@@ -187,11 +187,7 @@
 // ════════════════════════════════════════
 //  ⚙️  設定區
 // ════════════════════════════════════════
-const DRIVE_CONFIG = {
-  CLIENT_ID:  '503123401179-h160qebsiqf7mqd9objmr6e1t66pmflf.apps.googleusercontent.com',
-  API_KEY:    'AIzaSyAQVJUJCizvMzKK7PqjbT55YnPkkT-IZ_U',
-  FOLDER_ID:  '1CibkS1FAFYz96SiKd61REbi_euui_9Dk'
-};
+const N8N_WEBHOOK_URL = 'https://n8n.mischa-hrai.com/webhook/89153a04-c374-4f0e-8697-8c00e56c1ebc';
 // ════════════════════════════════════════
 
 // ── 72 題完整題庫 ──
@@ -383,24 +379,7 @@ function setScreen(id){
 }
 
 // 按下「開始測驗」→ 先完成 Google 授權，再進入答題
-function startTest(){
-  const n = document.getElementById('candidate-name').value.trim();
-  if(!n){ alert('請先輸入姓名'); return; }
-  candidateName = n;
-
-  // 若未設定 API，直接進入答題（測試模式）
-  if(DRIVE_CONFIG.CLIENT_ID==='503123401179-h160qebsiqf7mqd9objmr6e1t66pmflf.apps.googleusercontent.com'){
-    enterTest();
-    return;
-  }
-
-  // 顯示授權等待畫面
-  setScreen('screen-processing');
-  document.getElementById('screen-processing').querySelector('p').textContent = '正在連線 Google Drive\n請在彈出視窗中完成授權…';
-  loadGapiThenAuth();
-}
-
-function loadGapiThenAuth(){
+function startTest(){ const n = document.getElementById('candidate-name').value.trim(); if(!n){ alert('請先輸入姓名'); return; } candidateName = n; enterTest(); } function loadGapiThenAuth(){
   if(gapiReady){ doAuth(); return; }
   const s1 = document.createElement('script');
   s1.src = 'https://apis.google.com/js/api.js';
@@ -717,33 +696,8 @@ function showThankYou(){
   setScreen('screen-thankyou');
 }
 
-// ── Google Drive 上傳（使用已取得的 accessToken）──
-async function doUpload(htmlContent){
-  if(DRIVE_CONFIG.CLIENT_ID==='503123401179-h160qebsiqf7mqd9objmr6e1t66pmflf.apps.googleusercontent.com') return; // 測試模式跳過
-  const now = new Date();
-  const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
-  const filename = `DISC_${candidateName}_${dateStr}.html`;
-  const base64 = btoa(unescape(encodeURIComponent(htmlContent)));
-  const metadata = {
-    name: filename,
-    mimeType: 'text/html',
-    ...(DRIVE_CONFIG.FOLDER_ID && DRIVE_CONFIG.FOLDER_ID!=='1CibkS1FAFYz96SiKd61REbi_euui_9Dk'
-      ? {parents:[DRIVE_CONFIG.FOLDER_ID]} : {})
-  };
-  const boundary = 'disc_upload_boundary';
-  const body = `--${boundary}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(metadata)}\r\n--${boundary}\r\nContent-Type: text/html\r\nContent-Transfer-Encoding: base64\r\n\r\n${base64}\r\n--${boundary}--`;
-
-  // 直接用 fetch + Bearer token，不依賴 gapi.client
-  const resp = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-    method: 'POST',
-    headers: {
-      'Content-Type': `multipart/related; boundary=${boundary}`,
-      'Authorization': `Bearer ${accessToken}`
-    },
-    body
-  });
-  if(!resp.ok) throw new Error('Upload HTTP ' + resp.status);
-}
+// ── 上傳到 n8n Webhook ──
+async function doUpload(htmlContent){ const resp = await fetch(N8N_WEBHOOK_URL, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ userName: candidateName, htmlContent: htmlContent }) }); if(!resp.ok) throw new Error('Webhook HTTP ' + resp.status); }-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
 </script>
 </body>
 </html>
