@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DISC 人格特質測驗｜阿原工作室</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --d:#C0392B; --i:#E67E22; --s:#27AE60; --c:#2980B9;
+    --ink:#1a1a1a; --muted:#6b6b6b; --line:#e2e2e2; --bg:#faf9f6; --card:#fff;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;}
+  header{background:var(--ink);color:white;padding:2rem 2.5rem;display:flex;align-items:center;gap:1.5rem;}
+  .logo-block{width:48px;height:48px;display:grid;grid-template-columns:1fr 1fr;gap:3px;}
+  .logo-block span{border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:white;}
+  .header-text h1{font-family:'Noto Serif TC',serif;font-size:1.3rem;font-weight:700;letter-spacing:.05em;}
+  .header-text p{font-size:.78rem;color:#aaa;margin-top:2px;}
+  #progress-bar-wrap{background:#e8e8e8;height:4px;position:sticky;top:0;z-index:100;}
+  #progress-bar{height:4px;background:var(--ink);width:0%;transition:width .4s ease;}
+  .screen{display:none;}
+  .screen.active{display:block;}
+
+  /* Intro */
+  #screen-intro{max-width:680px;margin:0 auto;padding:4rem 2rem;}
+  .intro-tag{display:inline-block;font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);border:1px solid var(--line);padding:4px 12px;border-radius:2px;margin-bottom:1.5rem;}
+  #screen-intro h2{font-family:'Noto Serif TC',serif;font-size:2.2rem;font-weight:700;line-height:1.3;margin-bottom:1rem;}
+  #screen-intro p{color:var(--muted);line-height:1.8;font-size:.95rem;}
+  .disc-pills{display:flex;gap:10px;margin:2rem 0;flex-wrap:wrap;}
+  .disc-pill{padding:6px 18px;border-radius:2px;font-size:.82rem;font-weight:500;color:white;}
+  .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin:2rem 0;}
+  .info-cell{background:var(--card);padding:1rem 1.2rem;}
+  .info-cell .val{font-size:1.5rem;font-weight:600;font-family:'Noto Serif TC',serif;}
+  .info-cell .lbl{font-size:.75rem;color:var(--muted);margin-top:2px;}
+  .name-form{margin-top:2.5rem;}
+  .name-form label{font-size:.82rem;color:var(--muted);display:block;margin-bottom:8px;}
+  .name-form input{width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:2px;font-family:'Noto Sans TC',sans-serif;font-size:1rem;background:var(--card);color:var(--ink);outline:none;transition:border-color .2s;}
+  .name-form input:focus{border-color:var(--ink);}
+  .btn-primary{display:inline-block;margin-top:1.5rem;background:var(--ink);color:white;padding:14px 36px;border:none;font-family:'Noto Sans TC',sans-serif;font-size:.9rem;font-weight:500;letter-spacing:.05em;cursor:pointer;border-radius:2px;transition:opacity .2s;}
+  .btn-primary:hover{opacity:.82;}
+
+  /* Test */
+  #screen-test{max-width:780px;margin:0 auto;padding:3rem 2rem 6rem;}
+  .q-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:1px solid var(--line);}
+  .q-num{font-size:.78rem;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;}
+  .q-count{font-size:.78rem;color:var(--muted);}
+  .fc-legend{display:flex;gap:20px;margin-bottom:1.8rem;flex-wrap:wrap;}
+  .fc-badge{display:flex;align-items:center;gap:8px;font-size:.8rem;color:var(--muted);}
+  .fc-dot{width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0;}
+  .fc-dot.most{background:var(--ink);color:white;}
+  .fc-dot.least{background:white;color:var(--ink);border:1.5px solid var(--ink);}
+  .q-instruction{font-size:.85rem;color:var(--muted);margin-bottom:1.2rem;line-height:1.6;padding:10px 14px;background:#f5f4f1;border-left:3px solid var(--ink);border-radius:0 2px 2px 0;}
+  .options-list{display:grid;gap:10px;}
+  .option-row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:2px;padding:14px 16px;transition:border-color .15s;}
+  .option-row:hover{border-color:#bbb;}
+  .option-row.is-most{border-color:var(--ink);background:#f7f6f3;}
+  .option-row.is-least{border-color:#aaa;background:#fafafa;}
+  .option-text{flex:1;font-size:.93rem;line-height:1.5;color:var(--ink);}
+  .toggle-group{display:flex;gap:8px;flex-shrink:0;}
+  .toggle-btn{width:34px;height:34px;border-radius:50%;border:1.5px solid var(--line);background:white;cursor:pointer;font-size:.68rem;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all .15s;color:var(--muted);font-family:'Noto Sans TC',sans-serif;}
+  .toggle-btn:hover{border-color:var(--ink);color:var(--ink);}
+  .toggle-btn.most-active{background:var(--ink);color:white;border-color:var(--ink);}
+  .toggle-btn.least-active{background:white;color:var(--ink);border-color:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink);}
+  .status-hint{margin-top:12px;font-size:.82rem;min-height:20px;}
+  .status-hint.ok{color:var(--s);}
+  .status-hint.partial{color:var(--i);}
+  .nav-row{display:flex;justify-content:space-between;align-items:center;margin-top:2rem;}
+  .btn-back{background:none;border:1px solid var(--line);color:var(--muted);padding:10px 22px;font-family:'Noto Sans TC',sans-serif;font-size:.85rem;cursor:pointer;border-radius:2px;transition:all .15s;}
+  .btn-back:hover{border-color:var(--ink);color:var(--ink);}
+  .btn-next{background:var(--ink);color:white;border:none;padding:12px 32px;font-family:'Noto Sans TC',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer;border-radius:2px;opacity:.3;transition:opacity .2s;pointer-events:none;}
+  .btn-next.ready{opacity:1;pointer-events:all;}
+
+  /* Processing */
+  #screen-processing{max-width:480px;margin:0 auto;padding:8rem 2rem;text-align:center;}
+  .spinner{width:40px;height:40px;border:3px solid var(--line);border-top-color:var(--ink);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 2rem;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  #screen-processing p{color:var(--muted);font-size:.95rem;line-height:1.8;}
+
+  /* Thank You */
+  #screen-thankyou{max-width:560px;margin:0 auto;padding:8rem 2rem;text-align:center;}
+  .ty-icon{width:64px;height:64px;background:var(--ink);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 2rem;}
+  .ty-icon svg{width:28px;height:28px;stroke:white;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
+  #screen-thankyou h2{font-family:'Noto Serif TC',serif;font-size:1.9rem;font-weight:700;margin-bottom:1rem;}
+  #screen-thankyou .ty-name{font-size:1.1rem;color:var(--muted);margin-bottom:.5rem;}
+  #screen-thankyou .ty-msg{font-size:.92rem;color:var(--muted);line-height:2;}
+
+  /* Error */
+  #screen-error{max-width:480px;margin:0 auto;padding:8rem 2rem;text-align:center;}
+  .err-icon{width:64px;height:64px;background:#fdf0ef;border:1.5px solid #f5c6c4;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 2rem;}
+  .err-icon svg{width:28px;height:28px;stroke:var(--d);fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
+  #screen-error h2{font-family:'Noto Serif TC',serif;font-size:1.5rem;font-weight:700;margin-bottom:.8rem;color:var(--d);}
+  #screen-error p{font-size:.9rem;color:var(--muted);line-height:1.9;margin-bottom:2rem;}
+  .btn-retry{background:var(--ink);color:white;border:none;padding:14px 36px;font-family:'Noto Sans TC',sans-serif;font-size:.9rem;font-weight:500;cursor:pointer;border-radius:2px;transition:opacity .2s;}
+  .btn-retry:hover{opacity:.8;}
+
+  @media(max-width:540px){
+    .info-grid{grid-template-columns:1fr;}
+    header{padding:1.5rem;}
+    .toggle-btn{width:30px;height:30px;font-size:.6rem;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-block">
+    <span style="background:#C0392B">D</span><span style="background:#E67E22">I</span>
+    <span style="background:#27AE60">S</span><span style="background:#2980B9">C</span>
+  </div>
+  <div class="header-text">
+    <h1>DISC 人格特質測驗</h1>
+    <p>阿原工作室｜人才招募評估</p>
+  </div>
+</header>
+<div id="progress-bar-wrap"><div id="progress-bar"></div></div>
+
+<!-- ① Intro -->
+<div id="screen-intro" class="screen active">
+  <div class="intro-tag">Personality Assessment</div>
+  <h2>了解你的<br>行為風格</h2>
+  <p>DISC 測驗幫助我們了解每位夥伴的溝通方式與工作特質，沒有好壞之分，只有不同的天賦。<br>本測驗採用<strong>強迫選擇格式</strong>，每題請從四個描述中，各選出「最像你」與「最不像你」一項。</p>
+  <div class="disc-pills">
+    <div class="disc-pill" style="background:var(--d)">D 主導型</div>
+    <div class="disc-pill" style="background:var(--i)">I 影響型</div>
+    <div class="disc-pill" style="background:var(--s)">S 穩健型</div>
+    <div class="disc-pill" style="background:var(--c)">C 謹慎型</div>
+  </div>
+  <div class="info-grid">
+    <div class="info-cell"><div class="val">24</div><div class="lbl">題題目數量</div></div>
+    <div class="info-cell"><div class="val">10分</div><div class="lbl">預估時間</div></div>
+    <div class="info-cell"><div class="val">48</div><div class="lbl">筆行為數據</div></div>
+  </div>
+  <div class="name-form">
+    <label>請輸入你的姓名（將顯示於報告中）</label>
+    <input type="text" id="candidate-name" placeholder="例：王小明" maxlength="20">
+  </div>
+  <button class="btn-primary" onclick="startTest()">開始測驗 →</button>
+</div>
+
+<!-- ② Test -->
+<div id="screen-test" class="screen">
+  <div class="q-header">
+    <span class="q-num" id="q-num-label">題目 01</span>
+    <span class="q-count" id="q-count-label">1 / 24</span>
+  </div>
+  <div class="fc-legend">
+    <div class="fc-badge"><div class="fc-dot most">最</div>最像我 — 選 1 項</div>
+    <div class="fc-badge"><div class="fc-dot least">不</div>最不像我 — 選 1 項</div>
+  </div>
+  <div class="q-instruction">請從以下四個描述中，選出<strong>最像你</strong>和<strong>最不像你</strong>的各一項，兩個選項不能相同。</div>
+  <div class="options-list" id="options-list"></div>
+  <div class="status-hint" id="status-hint"></div>
+  <div class="nav-row">
+    <button class="btn-back" id="btn-back" onclick="prevQ()">← 上一題</button>
+    <button class="btn-next" id="btn-next" onclick="nextQ()">下一題 →</button>
+  </div>
+</div>
+
+<!-- ③ Processing -->
+<div id="screen-processing" class="screen">
+  <div class="spinner"></div>
+  <p>測驗已完成<br>資料處理中，請稍候…</p>
+</div>
+
+<!-- ④ Thank You -->
+<div id="screen-thankyou" class="screen">
+  <div class="ty-icon">
+    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <div class="ty-name" id="ty-name"></div>
+  <h2>感謝你完成測驗</h2>
+  <p class="ty-msg">你的作答已記錄完成。<br>我們將在後續面試中與你進一步交流。<br><br>請將裝置交還給工作人員，謝謝。</p>
+</div>
+
+<!-- ⑤ Error -->
+<div id="screen-error" class="screen">
+  <div class="err-icon">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  </div>
+  <h2>資料傳送失敗</h2>
+  <p>很抱歉，測驗結果在傳送時發生問題。<br>請點下方按鈕重新送出，或請工作人員協助。</p>
+  <button class="btn-retry" onclick="retrySubmit()">重新送出結果</button>
+</div>
+
+<script>
+// ════════════════════════════════════════
+//  ⚙️  設定區
+// ════════════════════════════════════════
+const DRIVE_CONFIG = {
+  CLIENT_ID:  '503123401179-h160qebsiqf7mqd9objmr6e1t66pmflf.apps.googleusercontent.com',
+  API_KEY:    'AIzaSyAQVJUJCizvMzKK7PqjbT55YnPkkT-IZ_U',
+  FOLDER_ID:  '1CibkS1FAFYz96SiKd61REbi_euui_9Dk'
+};
+// ════════════════════════════════════════
+
+// ── 72 題完整題庫 ──
+const allQuestions = [
+  {text:"主管突然指派你負責一個兩週後就要上線的新專案，你的第一反應是？",opts:[{text:"馬上開始排任務清單，心裡已經在想怎麼分工推進",type:"D"},{text:"先找幾個人聊聊，了解大家的想法和意願，再一起討論方向",type:"I"},{text:"有點緊張，但會先把手邊的事情交接好，再認真了解需求",type:"S"},{text:"想先搞清楚目標、資源和限制條件，覺得資訊太少很難開始",type:"C"}]},
+  {text:"你接到一個你以前沒做過的任務，你通常怎麼應對？",opts:[{text:"先試著做看看，遇到問題再找方法解決",type:"D"},{text:"找曾經做過的人聊聊，聽聽他們的經驗和感受",type:"I"},{text:"找到一個可以問的人，然後按照對方的建議一步一步來",type:"S"},{text:"先收集相關資料，弄懂背景和步驟，確認沒問題再動手",type:"C"}]},
+  {text:"你同時有三件事需要在今天完成，你怎麼處理？",opts:[{text:"判斷哪一件最重要，先完成它，其他的再說",type:"D"},{text:"先跟相關的人確認優先順序，看看有沒有人可以一起分擔",type:"I"},{text:"盡量全部做完，不想讓任何一個人等太久",type:"S"},{text:"把三件事的內容和時間仔細估算，再排出最合理的順序",type:"C"}]},
+  {text:"你比較喜歡哪一種工作節奏？",opts:[{text:"快，邊做邊調整，不喜歡等",type:"D"},{text:"有互動、有變化，不要太單調",type:"I"},{text:"穩定，有規律可以預期，讓我能好好把每件事做完",type:"S"},{text:"有足夠的時間把事情做好，不喜歡為了速度而犧牲品質",type:"C"}]},
+  {text:"你的工作出現了一個可以避免的失誤，你的反應是？",opts:[{text:"快速找到解決方案，不想讓問題繼續擴大",type:"D"},{text:"第一時間跟相關的人說清楚，不希望讓大家擔心或誤解",type:"I"},{text:"很自責，會一直想是哪裡沒做好，擔心影響到別人",type:"S"},{text:"仔細分析哪個環節出了問題，確保下次不會再發生",type:"C"}]},
+  {text:"你正在進行一個長期專案，進行到一半時規則突然改了，你的感受是？",opts:[{text:"有點煩，但很快調整方向，繼續往前推",type:"D"},{text:"第一反應是想找人討論，確認大家都知道這個變化",type:"I"},{text:"需要一點時間消化，希望有人能說清楚為什麼要改",type:"S"},{text:"想先確認新的規則是否完整，擔心沒想清楚就執行會出錯",type:"C"}]},
+  {text:"主管交給你一個沒有明確標準的任務，只說「你決定就好」，你的感受是？",opts:[{text:"很好，這代表我有完全的自主空間",type:"D"},{text:"可以接受，但我可能會找幾個人問問看法",type:"I"},{text:"有點不安，希望至少有一些參考方向",type:"S"},{text:"不太舒服，想先釐清評估標準再動手",type:"C"}]},
+  {text:"工作中你最享受的狀態是？",opts:[{text:"全速推進，一件接一件完成，看到成果累積",type:"D"},{text:"和大家一起動腦、討論，氣氛熱絡",type:"I"},{text:"按部就班地把每件事做好，不出差錯",type:"S"},{text:"深入鑽研一個問題，找到最精確的解法",type:"C"}]},
+  {text:"你負責的任務快到期限了，但品質還不夠好，你會怎麼做？",opts:[{text:"先交出去，後續再補強，準時比完美重要",type:"D"},{text:"找組員一起衝刺，靠團隊力量在最後關頭拉起來",type:"I"},{text:"盡力在時間內做到最好，不想讓主管失望",type:"S"},{text:"加班也要做到一定水準，交出品質不好的東西讓我很不安",type:"C"}]},
+  {text:"你覺得「犯錯」這件事，應該怎麼看待？",opts:[{text:"快速承認、快速改正，不要拖，繼續前進最重要",type:"D"},{text:"要讓相關的人知道，一起想辦法，不要一個人扛",type:"I"},{text:"很難受，但會認真從中學習，不想再讓同樣的事發生",type:"S"},{text:"仔細分析為什麼會錯，建立機制避免下次重蹈覆轍",type:"C"}]},
+  {text:"當你需要在完全陌生的領域完成一個任務，你通常？",opts:[{text:"邊做邊學，先有個結果再說",type:"D"},{text:"找業界朋友或前輩請教，靠人脈快速補充知識",type:"I"},{text:"找一個可以引導我的人，跟著他的步驟來",type:"S"},{text:"大量閱讀相關資料，先建立基礎知識再行動",type:"C"}]},
+  {text:"你的工作清單上有一件你一直拖著沒做的事，通常是因為？",opts:[{text:"那件事不夠重要，有更緊急的事要先做",type:"D"},{text:"需要別人配合，但一直沒找到合適的時機討論",type:"I"},{text:"不確定怎麼做才對，想等更清楚了再開始",type:"S"},{text:"還沒想清楚怎麼做最好，不想草率處理",type:"C"}]},
+  {text:"你和同事對同一件事有不同看法，你通常會怎麼做？",opts:[{text:"直接說出自己的想法，也希望對方能清楚表達立場",type:"D"},{text:"先緩和一下氣氛，找共同點，讓討論不要變得太緊繃",type:"I"},{text:"盡量理解對方的出發點，不想讓這件事影響彼此關係",type:"S"},{text:"整理自己的理由，希望用具體的事實和邏輯來說清楚",type:"C"}]},
+  {text:"你和新認識的人第一次合作，你通常怎麼開始？",opts:[{text:"直接進入工作討論，先把目標和分工搞清楚",type:"D"},{text:"先聊幾句，了解對方是什麼樣的人，讓氣氛輕鬆一點",type:"I"},{text:"保持禮貌，先觀察對方的風格，不急著表達自己的想法",type:"S"},{text:"先了解對方的背景和專業，確認彼此的工作方式再合作",type:"C"}]},
+  {text:"你發現一個同事的工作方式有問題，你通常會？",opts:[{text:"直接跟他說，覺得讓他繼續錯下去對大家都不好",type:"D"},{text:"找個合適的時機，委婉地提出來，不讓對方覺得被批評",type:"I"},{text:"先觀察一陣子，確認真的有問題，才考慮要不要開口",type:"S"},{text:"先把問題整理清楚，用具體例子說明，再跟對方談",type:"C"}]},
+  {text:"你給別人回饋的方式通常是？",opts:[{text:"直接說問題在哪，不拐彎抹角，因為這樣才有幫助",type:"D"},{text:"先說優點再說建議，讓對方聽得進去比較重要",type:"I"},{text:"看對方的狀態，如果不是好時機就先不說",type:"S"},{text:"整理清楚再說，希望對方能理解具體的改進方向",type:"C"}]},
+  {text:"在一個你不太熟悉的場合，你通常怎麼表現？",opts:[{text:"主動了解這個場合的重點，不想只是坐在那裡",type:"D"},{text:"主動找人說話，對認識新朋友感到自在",type:"I"},{text:"先觀察環境，等找到熟悉的感覺再慢慢融入",type:"S"},{text:"先搞清楚這個場合的規則和脈絡，再決定怎麼行動",type:"C"}]},
+  {text:"同事向你傾訴工作上的困難，你通常的反應是？",opts:[{text:"直接給建議，幫他找出解決方法",type:"D"},{text:"先陪他說說話，讓他感覺有人支持",type:"I"},{text:"耐心聽完，給予安慰，讓他知道我在這裡",type:"S"},{text:"幫他分析問題的原因，提出有依據的建議",type:"C"}]},
+  {text:"你如何處理和主管之間的意見不同？",opts:[{text:"說清楚自己的立場和理由，不因為對方是主管就妥協",type:"D"},{text:"找個輕鬆的場合表達看法，讓對話不要太正式",type:"I"},{text:"先理解主管的考量，再看有沒有機會提出自己的想法",type:"S"},{text:"準備充分的資料和邏輯，在適當時機正式提出",type:"C"}]},
+  {text:"一個新進同事不熟悉工作流程，你會怎麼做？",opts:[{text:"告訴他最關鍵的幾個重點，讓他快點上手",type:"D"},{text:"主動帶他認識大家，讓他融入團隊氣氛",type:"I"},{text:"耐心陪伴，隨時讓他知道有問題可以找我",type:"S"},{text:"整理一份清楚的說明給他，確保他理解每個步驟",type:"C"}]},
+  {text:"在會議中，你通常扮演什麼角色？",opts:[{text:"推動討論方向，讓會議不要偏題或拖太久",type:"D"},{text:"活絡氣氛，讓大家願意開口說話",type:"I"},{text:"傾聽各方意見，在需要時協調不同立場",type:"S"},{text:"記錄重點，確認結論有依據，不遺漏細節",type:"C"}]},
+  {text:"當你需要說服別人接受你的想法，你通常怎麼做？",opts:[{text:"直接說明利弊，讓對方看到這個想法的實際效益",type:"D"},{text:"先建立共鳴，讓對方感受到這個想法和他的目標一致",type:"I"},{text:"慢慢說，照顧對方的感受，不讓他覺得被強迫",type:"S"},{text:"準備充分的資料和邏輯依據，讓對方信服",type:"C"}]},
+  {text:"你最難相處的同事類型是？",opts:[{text:"做事拖拉、優柔寡斷、一直等別人做決定的人",type:"D"},{text:"沉默、不表達感受、讓人猜不透的人",type:"I"},{text:"情緒起伏大、讓工作氣氛變得緊張的人",type:"S"},{text:"做事馬虎、不在乎品質、隨便應付了事的人",type:"C"}]},
+  {text:"你剛加入一個新團隊，你希望同事怎麼認識你？",opts:[{text:"透過我的工作成果和執行力，讓他們看到我的能力",type:"D"},{text:"透過日常互動和相處，讓他們感受到我的熱情和親和力",type:"I"},{text:"透過我的穩定和可靠，讓他們知道可以信任我",type:"S"},{text:"透過我的專業和細心，讓他們對我的工作品質放心",type:"C"}]},
+  {text:"團隊要在三個方案中選一個，但大家意見分歧，你會怎麼做？",opts:[{text:"提出自己認為最好的方案，說明理由，推動大家做決定",type:"D"},{text:"讓每個人都有機會說出想法，試著找出大家都能接受的方向",type:"I"},{text:"傾向支持大多數人的意見，不想讓討論拖太久傷感情",type:"S"},{text:"希望把三個方案的優缺點都列出來，根據條件做比較",type:"C"}]},
+  {text:"你在做一個重要決定時，最看重的是？",opts:[{text:"這個決定能不能帶來具體的結果和進展",type:"D"},{text:"這個決定對周遭的人有什麼影響和感受",type:"I"},{text:"這個決定會不會讓現有的關係或狀況變得不穩定",type:"S"},{text:"這個決定有沒有足夠的資訊和邏輯支撐",type:"C"}]},
+  {text:"當工作上的事情進展不如預期，你的第一個反應是？",opts:[{text:"想辦法調整，找出卡關的地方，繼續推進",type:"D"},{text:"找人談談，說出來之後通常會比較有方向",type:"I"},{text:"有點擔心，會先確認有沒有影響到其他人",type:"S"},{text:"回頭檢查哪個環節出了問題，想清楚再繼續",type:"C"}]},
+  {text:"面對一個高風險但可能有高回報的機會，你會？",opts:[{text:"評估一下就決定，機會稍縱即逝，不能猶豫太久",type:"D"},{text:"找幾個信任的人討論，集思廣益再決定",type:"I"},{text:"謹慎考慮，比起冒險，更在意穩定",type:"S"},{text:"仔細研究所有可能的風險和回報，再做決定",type:"C"}]},
+  {text:"在壓力很大的情況下，你通常的反應是？",opts:[{text:"更加專注，壓力反而讓我效率更高",type:"D"},{text:"需要找人說說話，釋放一下情緒才能繼續",type:"I"},{text:"默默撐著，不想讓別人看出我的壓力",type:"S"},{text:"退一步重新分析，找出最安全的應對方式",type:"C"}]},
+  {text:"你被要求在資訊不完整的情況下立即做決定，你會？",opts:[{text:"根據現有資訊做出判斷，先行動再修正",type:"D"},{text:"快速詢問幾個關鍵人物，收集最重要的意見",type:"I"},{text:"盡量爭取更多時間，不想在不確定的情況下冒進",type:"S"},{text:"想辦法在最短時間內補足最關鍵的資訊再決定",type:"C"}]},
+  {text:"你遇到一個之前從未面對過的突發狀況，你通常？",opts:[{text:"立刻採取行動，邊做邊想辦法",type:"D"},{text:"第一時間讓相關的人知道，大家一起想對策",type:"I"},{text:"先穩住，確認影響範圍，再一步步處理",type:"S"},{text:"暫停一下，把狀況想清楚，確認不會因為倉促行動而犯更大的錯",type:"C"}]},
+  {text:"工作上你覺得最難的事情是？",opts:[{text:"等待別人的決定或回應，感覺時間被浪費了",type:"D"},{text:"長時間獨立工作，沒有互動和討論的機會",type:"I"},{text:"在沒有足夠支持的情況下被推上前線",type:"S"},{text:"被要求在品質未達標的情況下就交出成果",type:"C"}]},
+  {text:"開完一個重要的客戶會議，你最在意的是？",opts:[{text:"有沒有達成目標，下一步行動是什麼",type:"D"},{text:"客戶的感受好不好，氣氛是否讓人留下好印象",type:"I"},{text:"有沒有照顧到所有人的需求，大家都說到話了嗎",type:"S"},{text:"有沒有遺漏任何重要的細節，資料和說法是否準確",type:"C"}]},
+  {text:"你被要求在全公司面前做一個簡報，你的感受是？",opts:[{text:"還好，只要把重點說清楚就行，不需要特別緊張",type:"D"},{text:"有點期待，這是一個讓大家認識自己工作的機會",type:"I"},{text:"有點緊張，但會認真準備，不想在大家面前出錯",type:"S"},{text:"壓力很大，會花很多時間確認內容是否正確和完整",type:"C"}]},
+  {text:"你覺得一個好的團隊最重要的是？",opts:[{text:"目標清楚、行動快、大家知道自己該做什麼",type:"D"},{text:"氣氛好、彼此信任、願意互相支持",type:"I"},{text:"穩定、分工明確、不會突然出現太多意外狀況",type:"S"},{text:"標準一致、做事嚴謹、每個環節都有人負責到底",type:"C"}]},
+  {text:"你如果有機會帶領一個小團隊，你最想做的事是？",opts:[{text:"設定清楚的目標，帶大家往前衝",type:"D"},{text:"建立好的團隊文化，讓每個人都願意投入",type:"I"},{text:"確保每個人都有清楚的分工，不會有人感到茫然",type:"S"},{text:"建立完整的工作流程，確保品質和一致性",type:"C"}]},
+  {text:"一個團隊成員的表現持續不穩定，你會怎麼處理？",opts:[{text:"直接談，說清楚問題和期待，給他改善的機會",type:"D"},{text:"找個輕鬆的場合聊聊，了解他背後的原因",type:"I"},{text:"先默默觀察，確認不是暫時的狀況，再考慮開口",type:"S"},{text:"整理具體的數據和例子，再找他正式討論",type:"C"}]},
+  {text:"公司要舉辦一個部門聚餐，要你負責規劃，你會怎麼進行？",opts:[{text:"快速決定時間地點，確認大家都可以就行，不想花太多時間討論",type:"D"},{text:"先問問大家想去哪、想吃什麼，讓每個人都覺得有參與感",type:"I"},{text:"優先考慮哪個方案讓大家都不會有困難，不想讓人覺得麻煩",type:"S"},{text:"列出幾個選項，比較各自的優缺點，確認細節都安排好再定案",type:"C"}]},
+  {text:"你最希望別人怎麼形容你的工作表現？",opts:[{text:"效率高、說到做到、能帶動結果",type:"D"},{text:"有活力、好溝通、讓團隊氣氛很好",type:"I"},{text:"可靠、穩定、大家都知道可以找我",type:"S"},{text:"仔細、精準、交出來的東西都沒問題",type:"C"}]},
+  {text:"在一個討論很多但沒有結論的會議中，你通常會？",opts:[{text:"直接說「我們來做個決定吧」，推動會議結束",type:"D"},{text:"試著整合大家的意見，找出共同點",type:"I"},{text:"等待，希望有人出來收尾，不想強行主導",type:"S"},{text:"把各方的論點整理出來，幫助大家看清楚分歧在哪",type:"C"}]},
+  {text:"下班後你最需要的是什麼？",opts:[{text:"做一件自己想做的事，充電方式是自主行動",type:"D"},{text:"和朋友或家人聊聊，跟人互動讓我感覺有活力",type:"I"},{text:"安靜地休息，不想再動腦，讓自己沉澱一下",type:"S"},{text:"整理一下今天的事情，把沒完成的記錄下來，明天繼續",type:"C"}]},
+  {text:"你對於「計畫」這件事，通常的態度是？",opts:[{text:"有個大方向就夠了，太詳細的計畫反而綁手綁腳",type:"D"},{text:"計畫是起點，但要有彈性，跟著狀況走才靈活",type:"I"},{text:"喜歡有計畫，知道接下來要做什麼讓我安心",type:"S"},{text:"計畫要夠詳細，把可能的狀況都考慮到才算準備好",type:"C"}]},
+  {text:"你最希望別人在你身上看到什麼特質？",opts:[{text:"果斷、有行動力、不會原地打轉",type:"D"},{text:"熱情、開朗、讓人感到舒服和有活力",type:"I"},{text:"溫暖、可靠、讓人知道可以放心依靠",type:"S"},{text:"嚴謹、細心、做事有條不紊",type:"C"}]},
+  {text:"如果你有一個新的想法，你通常怎麼處理？",opts:[{text:"覺得可行就先試，失敗了再調整",type:"D"},{text:"先跟幾個人分享，看看大家的反應和想法",type:"I"},{text:"先想想這個想法對現有的事情有沒有影響，再決定要不要提",type:"S"},{text:"先自己評估可行性，確認想清楚了再跟別人說",type:"C"}]},
+  {text:"回顧一段合作結束後，你最有成就感的事通常是？",opts:[{text:"達成了原本設定的目標，甚至超越了預期",type:"D"},{text:"整個過程大家關係很好，留下了好的合作記憶",type:"I"},{text:"一路陪伴夥伴走過來，沒有人被留下來或感到孤單",type:"S"},{text:"交出來的成果品質很高，沒有明顯的疏漏或錯誤",type:"C"}]},
+  {text:"你的主管給了你一個方向，但細節都由你決定，你覺得？",opts:[{text:"很好，喜歡有空間自己決定怎麼做",type:"D"},{text:"可以接受，但希望過程中能隨時找主管確認方向",type:"I"},{text:"有點不確定，希望主管能給一些更具體的說明",type:"S"},{text:"有點不安，希望把目標和標準定義清楚再開始",type:"C"}]},
+  {text:"你覺得自己在什麼情況下表現最好？",opts:[{text:"有挑戰、有競爭、需要快速決策的時候",type:"D"},{text:"有互動、有合作、需要說服或展示的時候",type:"I"},{text:"環境穩定、有清楚分工、可以專注執行的時候",type:"S"},{text:"有足夠時間深入研究、對品質要求高的時候",type:"C"}]},
+  {text:"面對一個你不擅長的工作內容，你通常怎麼應對？",opts:[{text:"先做做看，挑戰新事物對我來說是刺激而非壓力",type:"D"},{text:"找人一起做，有伴一起學比較有動力",type:"I"},{text:"謹慎地學習，確保每個步驟都做對再繼續",type:"S"},{text:"先把基礎知識弄清楚，確認自己真的懂了再動手",type:"C"}]},
+  {text:"公司突然宣布組織調整，你的工作內容會有大幅改變，你的第一反應是？",opts:[{text:"想了解新的機會在哪裡，這可能是一個更好的發展空間",type:"D"},{text:"先跟同事討論，了解大家的感受，一起適應新環境",type:"I"},{text:"需要時間消化，希望有清楚的說明讓我知道接下來怎麼走",type:"S"},{text:"想先弄清楚所有細節，確認自己理解新的角色和期待",type:"C"}]},
+  {text:"你被分配到一個和以前完全不同的工作職位，你會？",opts:[{text:"很快進入狀況，把新角色的目標搞清楚再說",type:"D"},{text:"積極認識新環境的人，靠人際關係幫助自己融入",type:"I"},{text:"花時間了解新環境的文化和做事方式，再慢慢調整",type:"S"},{text:"仔細研究新職位的職責和標準，確保自己做對",type:"C"}]},
+  {text:"當工作流程改變，你通常需要多久才能適應？",opts:[{text:"很快，我喜歡改變，舊的方式不一定是最好的",type:"D"},{text:"有人帶我走一遍就好了，感覺對了就能上手",type:"I"},{text:"需要一點時間，我習慣把新流程練熟再說",type:"S"},{text:"要完全弄懂新流程的邏輯，才能真正放心執行",type:"C"}]},
+  {text:"一個你很熟悉的工作方式被要求改掉，你的感受是？",opts:[{text:"沒關係，如果新方法更有效率我可以接受",type:"D"},{text:"看大家的反應，如果大家都覺得好我也會跟著調整",type:"I"},{text:"有點不習慣，但如果是為了大家好，我會努力配合",type:"S"},{text:"需要了解為什麼要改、改了之後怎麼確保品質",type:"C"}]},
+  {text:"你被派去執行一個沒有前例可循的任務，你的態度是？",opts:[{text:"反而覺得有趣，沒有前例代表我可以定義做法",type:"D"},{text:"找業界或有經驗的人請教，再結合自己的想法",type:"I"},{text:"謹慎行事，不確定的地方就多問、多確認",type:"S"},{text:"花時間研究所有相關資訊，再制定一個有依據的計畫",type:"C"}]},
+  {text:"你接到一個緊急任務，要在兩小時內完成，你會？",opts:[{text:"立刻開始，先做出一個夠用的版本",type:"D"},{text:"看看有沒有人可以幫忙，分工合作會更快",type:"I"},{text:"保持冷靜，把工作分成幾個步驟，一步一步來",type:"S"},{text:"快速列出最關鍵的要求，確保在時間內做到最重要的部分",type:"C"}]},
+  {text:"你最容易在哪種情況下感到有成就感？",opts:[{text:"完成了一個有挑戰性的目標，超越了自己的預期",type:"D"},{text:"做了一件讓大家開心或受到鼓舞的事",type:"I"},{text:"幫助了某個人，讓他的情況變得更好",type:"S"},{text:"完成了一件品質很高、沒有瑕疵的工作",type:"C"}]},
+  {text:"你通常怎麼學習新知識？",opts:[{text:"直接找一個可以馬上應用的情境，邊做邊學",type:"D"},{text:"參加課程或工作坊，有互動才有動力",type:"I"},{text:"照著教材或手冊，按步驟慢慢學",type:"S"},{text:"先找最有系統的資料，完整理解後再動手",type:"C"}]},
+  {text:"你覺得自己最大的弱點是什麼？",opts:[{text:"有時候太急，沒有充分考慮就行動",type:"D"},{text:"有時候太在意別人的看法，影響了自己的判斷",type:"I"},{text:"有時候太配合別人，反而忽略了自己的需求",type:"S"},{text:"有時候想太多，讓決策變得很慢",type:"C"}]},
+  {text:"別人給你批評或負面回饋，你通常的反應是？",opts:[{text:"先聽是否有道理，有道理就接受，沒道理就說清楚",type:"D"},{text:"情緒上會有點受影響，但通常很快就調整過來",type:"I"},{text:"會很在意，反覆思考，比較難快速放下",type:"S"},{text:"仔細分析批評是否有依據，有則改之，無則不理",type:"C"}]},
+  {text:"你最希望在職場上被肯定的是？",opts:[{text:"我的執行力和帶動成果的能力",type:"D"},{text:"我的溝通力和對團隊氣氛的正面影響",type:"I"},{text:"我的可靠性和長期穩定的付出",type:"S"},{text:"我的專業深度和對品質的堅持",type:"C"}]},
+  {text:"你對未來的職涯發展，最看重的是？",opts:[{text:"能夠持續挑戰更高的目標，掌握更大的自主權",type:"D"},{text:"能夠影響更多人，在更大的舞台上發揮",type:"I"},{text:"在一個穩定、有歸屬感的環境中長期成長",type:"S"},{text:"在專業領域持續深耕，成為真正的專家",type:"C"}]},
+  {text:"你如何描述自己面對「不確定性」的態度？",opts:[{text:"不確定性讓我覺得興奮，代表有新的可能性",type:"D"},{text:"不確定時需要和人討論，靠對話找到方向",type:"I"},{text:"不確定讓我不安，我會想辦法讓情況變得更可預測",type:"S"},{text:"不確定讓我想先暫停，把所有可能性都想清楚再行動",type:"C"}]},
+  {text:"你如何安排自己的休閒時間？",opts:[{text:"喜歡嘗試新事物，或做有成就感的挑戰",type:"D"},{text:"喜歡和朋友一起活動，享受社交和互動",type:"I"},{text:"喜歡輕鬆、固定的活動，讓自己好好放鬆",type:"S"},{text:"喜歡有深度的活動，例如閱讀、學習或鑽研興趣",type:"C"}]},
+  {text:"你覺得「成功」對你來說是什麼？",opts:[{text:"達成設定的目標，並且比以前做得更好",type:"D"},{text:"在過程中建立好的關係，留下正面的影響",type:"I"},{text:"在一個穩定的環境中，持續做有意義的事",type:"S"},{text:"把一件事做到真正好，達到自己設定的高標準",type:"C"}]},
+  {text:"你對自己要求比較嚴格的地方是？",opts:[{text:"執行效率和達成目標的速度",type:"D"},{text:"與人互動的品質和給別人的印象",type:"I"},{text:"對夥伴的承諾和可靠程度",type:"S"},{text:"工作的精確度和細節的完整性",type:"C"}]},
+  {text:"做完一件大事之後，你通常需要什麼？",opts:[{text:"馬上想到下一個目標，停下來反而讓我不習慣",type:"D"},{text:"和大家慶祝一下，分享這份喜悅",type:"I"},{text:"安靜地休息，讓自己好好充電",type:"S"},{text:"回顧整個過程，記錄哪些地方可以做得更好",type:"C"}]},
+  {text:"你最害怕的工作情境是？",opts:[{text:"被過度管控，沒有自主空間，什麼都要等別人點頭",type:"D"},{text:"長期缺乏互動，一個人悶著做事，感覺被孤立",type:"I"},{text:"不停地改變，完全沒有穩定的感覺，不知道下一步是什麼",type:"S"},{text:"沒有明確標準，大家都在猜測，做出來的東西品質完全無法保證",type:"C"}]},
+  {text:"你做一個決定之後，如果結果不理想，你通常？",opts:[{text:"快速承認、修正，繼續前進，不想浪費時間懊悔",type:"D"},{text:"和信任的人聊聊，處理一下情緒再重新出發",type:"I"},{text:"會想很久，反覆檢討自己當時是否考慮周全",type:"S"},{text:"仔細分析哪個判斷出了問題，確保下次不再犯同樣的錯",type:"C"}]},
+  {text:"你最享受的學習方式是？",opts:[{text:"直接實戰，在真實挑戰中快速累積經驗",type:"D"},{text:"跟一群人一起學，互相激勵、分享心得",type:"I"},{text:"有人帶著我，按部就班地掌握每個步驟",type:"S"},{text:"深入研究，把一個主題真正弄懂，而不只是皮毛",type:"C"}]},
+  {text:"如果面試官問「你有什麼缺點」，你最可能說的是？",opts:[{text:"我有時候太急，可能沒有充分聽完別人的意見就做決定",type:"D"},{text:"我有時候太在乎氣氛，可能在需要說難聽話的時候拖太久",type:"I"},{text:"我有時候太顧慮別人，反而沒有表達自己真正的想法",type:"S"},{text:"我有時候要求太完美，在品質和時間之間的取捨上比較掙扎",type:"C"}]},
+  {text:"面試官問你「如何和不同風格的人合作」，你的回答傾向是？",opts:[{text:"直接說清楚目標和期待，讓大家都知道方向",type:"D"},{text:"先了解對方是什麼樣的人，再調整自己的溝通方式",type:"I"},{text:"多傾聽，盡量配合對方的節奏，讓合作順暢",type:"S"},{text:"釐清彼此的工作方式和標準，確保不因為風格不同而影響品質",type:"C"}]},
+  {text:"你在面試中被問到「你如何處理衝突」，你最自然的回答是？",opts:[{text:"我傾向直接面對衝突，把問題說清楚比讓它拖著好",type:"D"},{text:"我會先找一個輕鬆的氣氛，讓雙方都可以把話說出來",type:"I"},{text:"我會先冷靜下來，理解對方的立場，再找共識",type:"S"},{text:"我會先把事實釐清楚，確認分歧在哪裡，再理性討論",type:"C"}]},
+  {text:"面試官問你「你對這份工作最期待的是什麼」，你的第一反應是？",opts:[{text:"有挑戰性的目標，讓我可以發揮能力、看到成果",type:"D"},{text:"能夠和好的團隊合作，在有活力的環境中成長",type:"I"},{text:"穩定的工作環境，讓我可以長期投入、慢慢深耕",type:"S"},{text:"可以深入一個專業領域，把事情做到真正好的機會",type:"C"}]}
+];
+
+// 隨機抽 24 題
+function pickQuestions(){
+  const shuffled = [...allQuestions].sort(()=>Math.random()-0.5);
+  return shuffled.slice(0,24);
+}
+
+let questions = [];
+
+const typeInfo = {
+  D:{
+    name:"主導型 Dominance", color:"#C0392B",
+    summary:"果斷、自信、目標導向，是天生的行動派領導者。",
+    traits:"在壓力下仍能快速決策，勇於承擔挑戰。具備強烈的競爭心與成就動機，習慣主導局面、設定方向，不喜歡拖延或模糊。",
+    work:"偏好主導專案並快速推進，擅長在複雜局勢中理清優先順序。需要足夠的自主空間，若被過度管控容易感到束縛。在高壓環境下反而能激發潛能。",
+    comm:"說話直接有力，慣於簡短陳述重點，不喜歡繞圈子。有時語氣偏強勢，但出發點是效率而非攻擊。",
+    strength:"執行力強、決策迅速、目標清晰、抗壓性高、能帶動團隊前進。",
+    grow:"建議多練習耐心傾聽他人想法，在高速推進前多考量夥伴的狀態與感受。學習放慢節奏，有助於建立更深的團隊信任感，也能減少因過快決策造成的遺漏。",
+    hr:"適合需要高度自主、快節奏、目標導向的職位。面試時可考察其是否具備團隊協作能力，以及在挫折後的復原韌性。",
+    interview:[
+      "請描述一次你必須在資訊不完整的情況下快速做決定的經歷，你當時怎麼判斷？",
+      "當你的想法和主管或團隊有明顯衝突時，你通常怎麼處理？可以舉一個實際例子嗎？",
+      "你曾經因為推進太快而造成問題嗎？那次你學到了什麼？",
+      "你怎麼確保在主導一個專案時，團隊成員都還跟得上你的節奏？",
+      "在你過去的工作中，有沒有需要你放慢腳步、配合他人的情境？你如何調整自己？"
+    ]
+  },
+  I:{
+    name:"影響型 Influence", color:"#E67E22",
+    summary:"熱情、外向、有感染力，是天生的溝通者與激勵者。",
+    traits:"擅長建立人際連結，能快速讓他人感到輕鬆自在。充滿正能量與創意，喜歡在互動中激發靈感，對新事物保持高度熱忱。",
+    work:"在需要說服、展示、溝通或建立關係的場合表現亮眼。享受互動頻繁的工作環境，與他人合作時能量最高。對單調、重複性高的工作容易感到乏味。",
+    comm:"活潑生動，善於用故事和情感連結他人。表達豐富，容易讓聽者感到振奮，但有時會因為太想表達而忽略傾聽。",
+    strength:"溝通力強、人際吸引力高、創意豐富、正向樂觀、擅長激勵團隊。",
+    grow:"建議培養對細節的關注與系統性的執行能力。在興奮投入新計畫的同時，也要確保每件事都能落地完成，避免虎頭蛇尾的情況。",
+    hr:"適合業務、行銷、客服、公關等需要高度人際互動的職位。面試時可觀察其是否具備執行力與自我管理能力。",
+    interview:[
+      "你最近一次負責的專案，從開始到結束你是如何確保每個細節都落實的？",
+      "當你同時有很多事情要做，你怎麼決定優先順序？有沒有因此遺漏什麼的經驗？",
+      "請舉一個你必須獨立完成、沒有太多互動機會的工作，你如何讓自己保持動力？",
+      "你如何處理需要反覆執行、比較單調的工作內容？",
+      "有沒有一次你的樂觀態度讓你低估了某個困難？後來怎麼解決？"
+    ]
+  },
+  S:{
+    name:"穩健型 Steadiness", color:"#27AE60",
+    summary:"溫暖、耐心、忠誠，是團隊中最穩定可靠的力量。",
+    traits:"重視人際和諧與長期關係，具備高度的同理心與包容力。習慣在穩定的環境中發揮最大效能，對突如其來的變化容易感到不安。",
+    work:"在需要協調、支援、持續執行的工作中表現卓越。擅長維護團隊氣氛、協助他人度過困難。偏好有清楚流程與預期的工作內容。",
+    comm:"溫和包容，善於傾聽，讓人感到被理解與尊重。不喜歡衝突，傾向以和平方式處理分歧，有時會因此壓抑自己的真實想法。",
+    strength:"可靠穩定、耐心細心、高度忠誠、善於協調、同理心強。",
+    grow:"建議練習更主動表達自己的需求與意見，學習在適當時候說不。過度配合他人可能消耗自身能量，適度設立界線有助於長期維持良好表現。",
+    hr:"適合需要長期穩定投入、高度協作的職位。面試時可評估其在面對快速變化時的適應策略，以及表達自我意見的意願。",
+    interview:[
+      "你曾經遇過工作流程或規則突然大幅改變的情況嗎？你當時是怎麼應對的？",
+      "如果你認為主管的決定有問題，你通常會怎麼做？可以舉一個實際例子嗎？",
+      "當你和同事之間有明顯的意見不同，你會如何表達自己的立場？",
+      "有沒有一次你幫助別人太多，反而影響到自己工作的經驗？你後來怎麼調整？",
+      "請描述一個你必須在短時間內適應全新環境或工作方式的經歷，你怎麼做到的？"
+    ]
+  },
+  C:{
+    name:"謹慎型 Conscientiousness", color:"#2980B9",
+    summary:"精確、系統化、高標準，是追求完美的深度思考者。",
+    traits:"注重細節與品質，在動手前習慣收集充分資訊、進行深入分析。具備強烈的邏輯思維，對流程的嚴謹性有高度要求。",
+    work:"在需要高度準確性、數據分析、流程建立或品質管控的工作中表現優異。習慣獨立深度工作，不喜歡在資訊不足的情況下被迫做決定。",
+    comm:"邏輯清晰、有條理，偏好以事實與數據為溝通基礎。表達較為內斂，但一旦開口往往切中要害，讓人信服。",
+    strength:"分析能力強、細心精確、高標準、系統思維佳、做事有始有終。",
+    grow:"建議培養行動力，練習在資訊尚不完整時也能推進。過度分析有時會造成決策延遲，學習接受「夠好就執行」的節奏，有助於在快節奏環境中保持競爭力。",
+    hr:"適合需要高度精確、分析、品保的職位。面試時可評估其在時間壓力下的應變能力，以及與團隊溝通時的靈活度。",
+    interview:[
+      "請描述一次你在時間壓力下必須快速交出成果的經歷，你如何在速度和品質之間取捨？",
+      "有沒有一次你因為過度追求完美而造成進度落後？當時怎麼處理？",
+      "當你認為某件事應該要做得更好，但主管認為現在的品質已經夠用，你會怎麼回應？",
+      "你如何向非專業背景的人解釋複雜的分析結果或技術細節？",
+      "請舉一個你需要在不確定的情況下推進工作的例子，你怎麼克服資訊不足的困難？"
+    ]
+  }
+};
+
+const combos = {
+  "DI":"行動力與感染力兼備，是能帶領團隊衝刺又維持士氣的強力推動者。",
+  "DS":"目標清晰又顧及人情，能在高壓環境中穩定交付高品質成果。",
+  "DC":"追求成果又一絲不苟，是高標準的執行型領導者，重視效率也重視品質。",
+  "ID":"充滿活力與衝勁，在人際互動中展現強大的影響力與感召力。",
+  "IS":"溫暖又有感染力，是凝聚團隊情感、讓大家願意一起前進的核心人物。",
+  "IC":"熱情又細心，擅長將豐富創意轉化為有說服力的完整方案。",
+  "SD":"穩重中帶著決斷，能在不動聲色間完成高難度任務，讓人放心交付重要工作。",
+  "SI":"親切又溫暖，是讓每個人都感到被照顧與重視的團隊黏著劑。",
+  "SC":"踏實又精準，是確保流程順暢運作、品質穩定輸出的幕後功臣。",
+  "CD":"嚴謹又有魄力，能用系統思維驅動高品質成果，兼顧深度與執行力。",
+  "CI":"分析力與溝通力兼具，能將複雜議題化為清晰易懂的表達，深具說服力。",
+  "CS":"謹慎又體貼，在需要精確度與高度信任的工作中表現卓越。"
+};
+
+// ── State ──
+let currentQ = 0;
+let answers = [];
+let candidateName = "";
+let computedScores = null;
+let computedDominant = null;
+let computedSecondary = null;
+let gapiReady = false;
+let accessToken = null;
+
+function initAnswers(){ answers = questions.map(()=>({most:null,least:null})); }
+
+function setScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// 按下「開始測驗」→ 先完成 Google 授權，再進入答題
+function startTest(){
+  const n = document.getElementById('candidate-name').value.trim();
+  if(!n){ alert('請先輸入姓名'); return; }
+  candidateName = n;
+
+  // 若未設定 API，直接進入答題（測試模式）
+  if(DRIVE_CONFIG.CLIENT_ID==='503123401179-h160qebsiqf7mqd9objmr6e1t66pmflf.apps.googleusercontent.com'){
+    enterTest();
+    return;
+  }
+
+  // 顯示授權等待畫面
+  setScreen('screen-processing');
+  document.getElementById('screen-processing').querySelector('p').textContent = '正在連線 Google Drive\n請在彈出視窗中完成授權…';
+  loadGapiThenAuth();
+}
+
+function loadGapiThenAuth(){
+  if(gapiReady){ doAuth(); return; }
+  const s1 = document.createElement('script');
+  s1.src = 'https://apis.google.com/js/api.js';
+  s1.onload = ()=>{
+    gapi.load('client',()=>{
+      gapi.client.init({
+        apiKey: DRIVE_CONFIG.API_KEY,
+        discoveryDocs:['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest']
+      }).then(()=>{
+        gapiReady = true;
+        const s2 = document.createElement('script');
+        s2.src = 'https://accounts.google.com/gsi/client';
+        s2.onload = ()=> doAuth();
+        document.head.appendChild(s2);
+      }).catch(()=> showAuthError());
+    });
+  };
+  s1.onerror = ()=> showAuthError();
+  document.head.appendChild(s1);
+}
+
+function doAuth(){
+  try {
+    const tc = google.accounts.oauth2.initTokenClient({
+      client_id: DRIVE_CONFIG.CLIENT_ID,
+      scope: 'https://www.googleapis.com/auth/drive.file',
+      callback:(resp)=>{
+        if(resp.error){ showAuthError(); return; }
+        accessToken = resp.access_token;
+        enterTest(); // 授權成功 → 進入答題
+      }
+    });
+    tc.requestAccessToken({prompt:'consent'});
+  } catch(e){ showAuthError(); }
+}
+
+function showAuthError(){
+  setScreen('screen-error');
+  document.getElementById('screen-error').querySelector('p').textContent =
+    '很抱歉，連線 Google Drive 時發生問題。\n請點下方按鈕重新嘗試，或請工作人員協助。';
+  document.getElementById('screen-error').querySelector('.btn-retry').onclick = ()=> loadGapiThenAuth();
+}
+
+function enterTest(){
+  questions = pickQuestions(); // 每次隨機抽 24 題
+  currentQ = 0;
+  initAnswers();
+  renderQ();
+  setScreen('screen-test');
+}
+
+function renderQ(){
+  const q = questions[currentQ];
+  const total = questions.length;
+  document.getElementById('q-num-label').textContent = `題目 ${String(currentQ+1).padStart(2,'0')}`;
+  document.getElementById('q-count-label').textContent = `${currentQ+1} / ${total}`;
+  document.getElementById('progress-bar').style.width = `${((currentQ+1)/total)*100}%`;
+  // 顯示題幹
+  let stem = document.getElementById('q-stem');
+  if(!stem){
+    stem = document.createElement('p');
+    stem.id = 'q-stem';
+    stem.style.cssText = 'font-size:1.05rem;line-height:1.75;margin-bottom:1.2rem;color:var(--ink);font-weight:500;';
+    document.getElementById('options-list').before(stem);
+  }
+  stem.textContent = q.text;
+
+  const list = document.getElementById('options-list');
+  list.innerHTML = '';
+  const ans = answers[currentQ];
+  q.opts.forEach((opt,i)=>{
+    const row = document.createElement('div');
+    row.className = 'option-row'+(ans.most===i?' is-most':'')+(ans.least===i?' is-least':'');
+    row.innerHTML = `
+      <div class="option-text">${opt.text}</div>
+      <div class="toggle-group">
+        <button class="toggle-btn${ans.most===i?' most-active':''}" onclick="selectMost(${i})">最</button>
+        <button class="toggle-btn${ans.least===i?' least-active':''}" onclick="selectLeast(${i})">不</button>
+      </div>`;
+    list.appendChild(row);
+  });
+  updateStatus();
+  document.getElementById('btn-back').style.visibility = currentQ===0?'hidden':'visible';
+  document.getElementById('btn-next').textContent = currentQ===total-1?'完成測驗 →':'下一題 →';
+  checkReady();
+}
+
+function selectMost(i){
+  const ans = answers[currentQ];
+  ans.most = (ans.most===i)?null:i;
+  if(ans.most!==null && ans.least===ans.most) ans.least=null;
+  renderQ();
+}
+function selectLeast(i){
+  const ans = answers[currentQ];
+  ans.least = (ans.least===i)?null:i;
+  if(ans.least!==null && ans.most===ans.least) ans.most=null;
+  renderQ();
+}
+function updateStatus(){
+  const ans = answers[currentQ];
+  const hint = document.getElementById('status-hint');
+  if(ans.most!==null && ans.least!==null){ hint.textContent='✓ 已完成，可繼續下一題'; hint.className='status-hint ok'; }
+  else if(ans.most!==null){ hint.textContent='還需選擇「最不像我」的選項'; hint.className='status-hint partial'; }
+  else if(ans.least!==null){ hint.textContent='還需選擇「最像我」的選項'; hint.className='status-hint partial'; }
+  else { hint.textContent='請選擇「最像我」與「最不像我」各一項'; hint.className='status-hint'; }
+}
+function checkReady(){
+  const ans = answers[currentQ];
+  document.getElementById('btn-next').classList.toggle('ready', ans.most!==null && ans.least!==null);
+}
+function nextQ(){
+  const ans = answers[currentQ];
+  if(ans.most===null || ans.least===null) return;
+  if(currentQ===questions.length-1){ finishTest(); return; }
+  currentQ++; renderQ();
+}
+function prevQ(){ if(currentQ===0) return; currentQ--; renderQ(); }
+
+function finishTest(){
+  setScreen('screen-processing');
+  document.getElementById('progress-bar').style.width='100%';
+  setTimeout(()=>{ computeScores(); runAutoSubmit(); }, 300);
+}
+
+function computeScores(){
+  const scores = {D:0,I:0,S:0,C:0};
+  answers.forEach((ans,qi)=>{
+    const q = questions[qi];
+    if(ans.most!==null) scores[q.opts[ans.most].type]+=1;
+    if(ans.least!==null) scores[q.opts[ans.least].type]-=1;
+  });
+  const sorted = Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+  computedScores = scores;
+  computedDominant = sorted[0][0];
+  computedSecondary = sorted[1][0];
+}
+
+// ── 產生完整中文 HTML 報告 ──
+function buildHTMLReport(){
+  const scores = computedScores;
+  const dominant = computedDominant;
+  const secondary = computedSecondary;
+  const info = typeInfo[dominant];
+  const info2 = typeInfo[secondary];
+  const now = new Date();
+  const dateStr = `${now.getFullYear()} 年 ${now.getMonth()+1} 月 ${now.getDate()} 日`;
+  const comboKey = dominant+secondary;
+  const comboText = combos[comboKey]||'';
+  const maxScore = Math.max(...Object.values(scores).map(Math.abs),1);
+
+  const barHTML = ['D','I','S','C'].map(t=>{
+    const v = scores[t];
+    const pct = Math.abs(v)/maxScore*45;
+    const color = {D:'#C0392B',I:'#E67E22',S:'#27AE60',C:'#2980B9'}[t];
+    const posW = v>0?pct:0, negW = v<0?pct:0;
+    return `
+    <tr>
+      <td style="width:28px;padding:6px 8px 6px 0;vertical-align:middle;">
+        <span style="display:inline-flex;width:26px;height:26px;border-radius:50%;background:${color};color:white;font-weight:700;font-size:12px;align-items:center;justify-content:center;">${t}</span>
+      </td>
+      <td style="padding:6px 0;">
+        <div style="position:relative;height:10px;background:#eee;border-radius:5px;overflow:visible;">
+          <div style="position:absolute;left:50%;width:1px;height:18px;top:-4px;background:#ccc;z-index:1;"></div>
+          ${v>0?`<div style="position:absolute;left:50%;width:${posW}%;height:10px;background:${color};border-radius:0 5px 5px 0;"></div>`:''}
+          ${v<0?`<div style="position:absolute;right:50%;width:${negW}%;height:10px;background:${color};border-radius:5px 0 0 5px;opacity:.5;"></div>`:''}
+        </div>
+      </td>
+      <td style="width:40px;padding:6px 0 6px 10px;font-weight:700;font-size:13px;color:${color};">${v>0?'+':''}${v}</td>
+    </tr>`;
+  }).join('');
+
+  const interviewQs = info.interview.map((q,i)=>`
+    <div style="display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;">
+      <span style="flex-shrink:0;width:22px;height:22px;border-radius:50%;background:${info.color};color:white;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;">${i+1}</span>
+      <span style="font-size:14px;line-height:1.75;color:#333;">${q}</span>
+    </div>`).join('');
+  const sectionStyle = `margin:0 0 20px;padding:16px 18px;background:#f9f9f7;border-left:4px solid ${info.color};border-radius:0 6px 6px 0;`;
+  const labelStyle = `font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#999;margin-bottom:6px;`;
+  const textStyle = `font-size:14px;line-height:1.85;color:#333;`;
+
+  return `<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DISC 測驗報告 - ${candidateName}</title>
+<style>
+  body{font-family:'Noto Sans TC','Microsoft JhengHei','PingFang TC',sans-serif;background:#faf9f6;color:#1a1a1a;margin:0;padding:0;}
+  .page{max-width:720px;margin:0 auto;padding:40px 32px;}
+  h1,h2,h3{font-family:'Noto Serif TC','Georgia',serif;}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div style="background:#1a1a1a;color:white;padding:24px 28px;border-radius:6px;margin-bottom:28px;">
+    <div style="font-size:18px;font-weight:700;letter-spacing:.05em;margin-bottom:4px;">DISC 人格特質測驗報告</div>
+    <div style="font-size:12px;color:#aaa;">阿原工作室｜人才招募評估</div>
+  </div>
+
+  <!-- 姓名與日期 -->
+  <div style="margin-bottom:24px;">
+    <div style="font-size:28px;font-weight:700;font-family:'Noto Serif TC',serif;margin-bottom:6px;">${candidateName}</div>
+    <div style="font-size:13px;color:#888;">測驗日期：${dateStr}　｜　格式：強迫選擇（Most/Least）　｜　題數：24 題</div>
+  </div>
+
+  <!-- 主導型別徽章 -->
+  <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
+    <span style="display:inline-block;padding:7px 18px;background:${info.color};color:white;border-radius:3px;font-size:13px;font-weight:600;">${info.name}</span>
+    <span style="display:inline-block;padding:7px 18px;background:${info2.color};color:white;border-radius:3px;font-size:13px;font-weight:600;opacity:.8;">${info2.name}</span>
+  </div>
+
+  <!-- 組合說明 -->
+  <div style="margin-bottom:24px;padding:14px 18px;background:#f0f0ec;border-radius:6px;font-size:14px;line-height:1.8;color:#444;">
+    ${comboText}
+  </div>
+
+  <!-- 各維度得分 -->
+  <div style="margin-bottom:28px;">
+    <div style="font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#999;margin-bottom:12px;">各維度淨得分（Most +1 ／ Least −1）</div>
+    <table style="width:100%;border-collapse:collapse;">${barHTML}</table>
+  </div>
+
+  <hr style="border:none;border-top:1px solid #e2e2e2;margin:28px 0;">
+
+  <!-- 分析報告 -->
+  <h2 style="font-size:18px;margin-bottom:20px;color:#1a1a1a;">分析報告</h2>
+
+  <div style="${sectionStyle}">
+    <div style="${labelStyle}">整體特質摘要</div>
+    <div style="${textStyle}">${info.summary}<br>${info.traits}</div>
+  </div>
+
+  <div style="${sectionStyle}">
+    <div style="${labelStyle}">工作風格</div>
+    <div style="${textStyle}">${info.work}</div>
+  </div>
+
+  <div style="${sectionStyle}">
+    <div style="${labelStyle}">溝通方式</div>
+    <div style="${textStyle}">${info.comm}</div>
+  </div>
+
+  <div style="${sectionStyle}">
+    <div style="${labelStyle}">核心優勢</div>
+    <div style="${textStyle}">${info.strength}</div>
+  </div>
+
+  <div style="${sectionStyle}">
+    <div style="${labelStyle}">成長建議</div>
+    <div style="${textStyle}">${info.grow}</div>
+  </div>
+
+  <div style="margin:0 0 20px;padding:16px 18px;background:#f0f6ff;border-left:4px solid #2980B9;border-radius:0 6px 6px 0;">
+    <div style="${labelStyle}">HR 面試參考</div>
+    <div style="${textStyle}">${info.hr}</div>
+  </div>
+
+  <!-- 面試追問問題 -->
+  <hr style="border:none;border-top:1px solid #e2e2e2;margin:28px 0;">
+  <h2 style="font-size:18px;margin-bottom:6px;color:#1a1a1a;">建議面試追問問題</h2>
+  <p style="font-size:13px;color:#888;margin-bottom:20px;">以下問題針對此類型的潛在盲點設計，建議主管在面試中擇要使用，以更全面了解應徵者的真實行為模式。</p>
+  <div style="padding:20px;background:#fafaf8;border:1px solid #e8e8e4;border-radius:6px;">
+    ${interviewQs}
+  </div>
+
+  <!-- 主管注意事項 -->
+  <div style="margin-top:28px;padding:16px 20px;background:#fff8e6;border:1px solid #f0d080;border-radius:6px;">
+    <div style="font-size:12px;font-weight:700;color:#996600;margin-bottom:8px;">⚠️ 主管使用說明</div>
+    <div style="font-size:13px;color:#666;line-height:1.9;">
+      本測驗為行為傾向參考工具，結果反映受測者在填答當下的自我認知，可能受情境、心情或自我期望影響。<br>
+      建議將本報告作為<strong>面試對話的起點</strong>，搭配結構化面試問題與實際觀察，才能做出更完整的人才評估。<br>
+      <strong>不建議單獨以本報告作為錄取或淘汰的依據。</strong>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <hr style="border:none;border-top:1px solid #e2e2e2;margin:28px 0 16px;">
+  <div style="font-size:11px;color:#bbb;line-height:1.8;">
+    本報告由阿原工作室 DISC 人格特質測驗系統自動產生，供人才評估參考使用。<br>
+    Generated: ${now.toISOString()}
+  </div>
+
+</div>
+</body>
+</html>`;
+}
+
+// ── 自動執行 ──
+async function runAutoSubmit(){
+  try {
+    const htmlContent = buildHTMLReport();
+    await doUpload(htmlContent);
+    showThankYou();
+  } catch(err){
+    console.error('Submit error:', err);
+    setScreen('screen-error');
+    document.getElementById('screen-error').querySelector('p').textContent =
+      '很抱歉，測驗結果在傳送時發生問題。\n請點下方按鈕重新送出，或請工作人員協助。';
+    document.getElementById('screen-error').querySelector('.btn-retry').onclick = ()=> retrySubmit();
+  }
+}
+
+function retrySubmit(){
+  setScreen('screen-processing');
+  document.getElementById('screen-processing').querySelector('p').textContent = '資料處理中，請稍候…';
+  setTimeout(()=>{ computeScores(); runAutoSubmit(); }, 300);
+}
+
+function showThankYou(){
+  document.getElementById('ty-name').textContent = candidateName + '，';
+  setScreen('screen-thankyou');
+}
+
+// ── Google Drive 上傳（使用已取得的 accessToken）──
+async function doUpload(htmlContent){
+  if(DRIVE_CONFIG.CLIENT_ID==='503123401179-h160qebsiqf7mqd9objmr6e1t66pmflf.apps.googleusercontent.com') return; // 測試模式跳過
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+  const filename = `DISC_${candidateName}_${dateStr}.html`;
+  const base64 = btoa(unescape(encodeURIComponent(htmlContent)));
+  const metadata = {
+    name: filename,
+    mimeType: 'text/html',
+    ...(DRIVE_CONFIG.FOLDER_ID && DRIVE_CONFIG.FOLDER_ID!=='1CibkS1FAFYz96SiKd61REbi_euui_9Dk'
+      ? {parents:[DRIVE_CONFIG.FOLDER_ID]} : {})
+  };
+  const boundary = 'disc_upload_boundary';
+  const body = `--${boundary}\r\nContent-Type: application/json\r\n\r\n${JSON.stringify(metadata)}\r\n--${boundary}\r\nContent-Type: text/html\r\nContent-Transfer-Encoding: base64\r\n\r\n${base64}\r\n--${boundary}--`;
+
+  // 直接用 fetch + Bearer token，不依賴 gapi.client
+  const resp = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+    method: 'POST',
+    headers: {
+      'Content-Type': `multipart/related; boundary=${boundary}`,
+      'Authorization': `Bearer ${accessToken}`
+    },
+    body
+  });
+  if(!resp.ok) throw new Error('Upload HTTP ' + resp.status);
+}
+</script>
+</body>
+</html>
